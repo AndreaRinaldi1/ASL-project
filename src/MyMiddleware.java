@@ -1,7 +1,5 @@
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -9,17 +7,16 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MyMiddleware implements Runnable{
 
@@ -38,7 +35,8 @@ public class MyMiddleware implements Runnable{
     private static int serverCount = 0;
 	String[][] parts;
 	ArrayList<Socket> sockets = new ArrayList<>();
-	
+
+	public static final Logger QUEUELENGTH = LogManager.getLogger("QueueLength");
 	
 	public MyMiddleware(String myIp, int myPort,List<String> mcAddresses,int numThreadsPTP,boolean readSharded){
 		MyMiddleware.myIp = myIp;
@@ -57,6 +55,9 @@ public class MyMiddleware implements Runnable{
 		   
 		    }
 		});
+		QUEUELENGTH.info(queue.size());
+		
+		
 		/*
 		 * Here I initialize the middleware port, backlog and IP address to bind to (in input)
 		 */
@@ -64,7 +65,7 @@ public class MyMiddleware implements Runnable{
 			inputSocket = ServerSocketChannel.open();
 			inputSocket.bind(new InetSocketAddress(myIp, myPort));
 		} catch(IOException e){
-			Logger.getAnonymousLogger().log(Level.SEVERE, "Cannot start the middleware input socket");
+			System.err.println("Cannot start the middleware input socket");
 		}
 		
 		System.out.println("MyMidldleware - I instanciated inputSocket. Address: " + myIp + " Port: " + myPort);
@@ -116,7 +117,25 @@ public class MyMiddleware implements Runnable{
         instance.setSelector(selector);
         
         new Thread(instance).start();
+        try {
+        	clientChannel = inputSocket.accept();
+    		if(clientChannel != null){
+    			clientChannel.configureBlocking(false);
+
+    			clientChannel.register(selector, SelectionKey.OP_READ, ByteBuffer.allocate(256));
+    			System.out.println("connection estabilished");
+    			Timer timer = new Timer();
+    			timer.scheduleAtFixedRate(new TimerTask() {
+    				public void run() {
+    					QUEUELENGTH.info(queue.size());
+    				}
+    			}, 0, 5);
+    		}
+        }catch(IOException e) {
+        	
+        }
         
+		
         while(true && keepRunning){
         	try {
         		
@@ -134,7 +153,7 @@ public class MyMiddleware implements Runnable{
     			
         	}
         	catch(IOException e){
-        		Logger.getAnonymousLogger().log(Level.SEVERE, "Cannot accept clients connections");
+        		System.err.println("Cannot accept clients connections");
         	}
         }       
 	}

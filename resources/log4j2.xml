@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+<Appenders>
+	<File name="QueueLength" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/queueLength.log" Append="false">
+		<PatternLayout pattern="%d{HH:mm:ss.SSS}  %m%n"/>
+        </File>
+	<File name="ServiceTime" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/serviceTime.log" Append="false">
+		<PatternLayout pattern="%m%n"/>
+	</File>
+</Appenders>
+<Loggers>
+	<Logger name="QueueLength" level="info" additivity="false">
+		<AppenderRef ref="QueueLength"/>
+	</Logger>
+	<Root level="error">
+		<AppenderRef ref="ServiceTime"/>
+	</Root>
+</Loggers>
+</Configuration>
