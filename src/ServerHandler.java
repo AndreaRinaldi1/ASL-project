@@ -6,12 +6,20 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 public class ServerHandler {
 	private Socket socket;
 	private PrintWriter output;
 	private BufferedReader input;
 	private Map<WorkerThread, String> replies;
+	
+	long sendTime;
+	long receiveTime;
+	public static final Logger SERVICETIME = LogManager.getLogger("ServiceTime");
+
 	
 	public ServerHandler(Socket socket) {
 		this.socket = socket;
@@ -32,6 +40,7 @@ public class ServerHandler {
 	//qui prima era senza il thread e tutto sequenziale: mandavo richiesta, aspettavo risposta e la rimandavo come return a wt
 	public void send(WorkerThread wt, String message){
 			output.println(message);
+			sendTime = System.nanoTime();
 			output.flush();
 	}
 	
@@ -48,6 +57,8 @@ public class ServerHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		receiveTime = System.nanoTime();
+		SERVICETIME.info(receiveTime - sendTime);
 		return serverReply;
 	}
 }

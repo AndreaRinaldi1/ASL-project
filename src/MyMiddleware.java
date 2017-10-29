@@ -1,4 +1,8 @@
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -35,8 +39,14 @@ public class MyMiddleware implements Runnable{
     private static int serverCount = 0;
 	String[][] parts;
 	ArrayList<Socket> sockets = new ArrayList<>();
-
+	public static int numOfGets = 0;
+	public static int numOfSets = 0;
+	public static int numOfMultiGets = 0;
+	int totalServiceTime = 0;
+	int numOfRequests = 0;
 	public static final Logger QUEUELENGTH = LogManager.getLogger("QueueLength");
+	public static final Logger REQUESTSTYPE = LogManager.getLogger("RequestsType");
+	//public static final Logger FINALINFO = LogManager.getLogger("FinalInfo");
 	
 	public MyMiddleware(String myIp, int myPort,List<String> mcAddresses,int numThreadsPTP,boolean readSharded){
 		MyMiddleware.myIp = myIp;
@@ -50,13 +60,44 @@ public class MyMiddleware implements Runnable{
 	public void run() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 		    public void run() {
-		        keepRunning = false;
-		        System.out.println("Qui ci vanno le statistiche da fare al termine");
-		   
+				System.out.println("Qui ci vanno le statistiche da fare al termine");
+				keepRunning = false;
+				workerThreads.shutdown();
+				REQUESTSTYPE.info("GET: " + numOfGets);
+				REQUESTSTYPE.info("SET: " + numOfSets);
+				REQUESTSTYPE.info("MULTIGET: " + numOfMultiGets);
+				
+				/*FileInputStream fstream = null;
+				try {
+					fstream = new FileInputStream("/home/andrea/eclipse-workspace/ASL_Working/resources/serviceTime.log");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+				String strLine;
+				
+				
+				try {
+					while ((strLine = br.readLine()) != null)   {
+						totalServiceTime += Integer.parseInt(strLine);
+						numOfRequests++;
+						
+					}
+				} catch (NumberFormatException | IOException e) {
+					e.printStackTrace();
+				}
+				System.out.println(totalServiceTime);
+				System.out.println(numOfRequests);
+				FINALINFO.info("Total time spent in service: " + totalServiceTime);
+				FINALINFO.info("\nNumber of requests: " + numOfRequests);
+				FINALINFO.info("\nAVG time spent in service per request: " + totalServiceTime / numOfRequests);
+				System.out.println("BYE BYE");
+				System.out.println("END");  */
+
+				
 		    }
-		});
-		QUEUELENGTH.info(queue.size());
-		
+	    });
+						
 		
 		/*
 		 * Here I initialize the middleware port, backlog and IP address to bind to (in input)
@@ -136,7 +177,7 @@ public class MyMiddleware implements Runnable{
         }
         
 		
-        while(true && keepRunning){
+        while(keepRunning){
         	try {
         		
     			clientChannel = inputSocket.accept();
@@ -168,6 +209,10 @@ public class MyMiddleware implements Runnable{
 			parts[numOfServers] = mcAddresses.get(numOfServers).split(":");
 			//servers.put(parts[0], Integer.parseInt(parts[1]));
 		}	
+		
+	}
+	
+	private void finalinfo() {
 		
 	}
 	

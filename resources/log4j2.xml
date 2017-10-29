@@ -2,16 +2,55 @@
 <Configuration status="WARN">
 <Appenders>
 	<File name="QueueLength" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/queueLength.log" Append="false">
-		<PatternLayout pattern="%d{HH:mm:ss.SSS}  %m%n"/>
-        </File>
+		<PatternLayout pattern="%d{HH:mm:ss.SSS} %m%n"/>
+	</File>
+	<File name="RequestsType" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/requestsType.log" Append="false">
+		<PatternLayout pattern="%m%n"/>
+	</File>
+	<File name="FinalInfo" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/FinalInfo.log">
+		<PatternLayout pattern="%m"/>
+	</File>
+	<File name="TimeInQueue" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/timeInQueue.log" Append="false">
+		<PatternLayout pattern="%m%n"/>
+	</File>
+	<File name="Throughput" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/throughput.log" Append="false">
+		<PatternLayout pattern="%d{HH:mm:ss.SSS} %m%n"/>
+	</File>
 	<File name="ServiceTime" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/serviceTime.log" Append="false">
+		<PatternLayout pattern="%m%n"/>
+	</File>
+	<File name="ResponseTime" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/responseTime.log" Append="false">
+		<PatternLayout pattern="%m%n"/>
+	</File>
+	<File name="ErrorMessages" fileName="/home/andrea/eclipse-workspace/ASL_Working/resources/errorMessages.log" Append="false">
 		<PatternLayout pattern="%m%n"/>
 	</File>
 </Appenders>
 <Loggers>
+	<Logger name="ResponseTime" level="info" additivity="false">
+		<AppenderRef ref="ResponseTime"/>
+	</Logger>
+	<Logger name="ErrorMessages" level="info" additivity="false">
+		<AppenderRef ref="ErrorMessages"/>
+	</Logger>
+	<Logger name="TimeInQueue" level="info" additivity="false">
+		<AppenderRef ref="TimeInQueue"/>
+	</Logger>
 	<Logger name="QueueLength" level="info" additivity="false">
 		<AppenderRef ref="QueueLength"/>
 	</Logger>
+	<Logger name="FinalInfo" level="info" additivity="false"> 
+		<AppenderRef ref="FinalInfo"/>
+	</Logger>
+	<Logger name="Throughput" level="info" additivity="false">
+		<AppenderRef ref="Throughput"/>
+	</Logger>
+	<Logger name="ServiceTime" level="info" additivity="false">
+		<AppenderRef ref="ServiceTime"/>
+	</Logger>
+	<Logger name="RequestsType" level="info" additivity="false">
+		<AppenderRef ref="RequestsType"/>
+	</Logger>	
 	<Root level="error">
 		<AppenderRef ref="ServiceTime"/>
 	</Root>

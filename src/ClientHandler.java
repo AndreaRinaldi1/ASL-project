@@ -5,6 +5,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.Scanner;
@@ -16,7 +17,9 @@ public class ClientHandler implements Runnable {
 	Queue<Job> queue;
 	Selector selector;
 	int count = 0;
+	long arrivalTime;
 	private static ClientHandler instance;
+
 
 	private ClientHandler() {}
 	
@@ -52,6 +55,7 @@ public class ClientHandler implements Runnable {
 				SelectionKey key = keyIterator.next();
 				if(key.isReadable()) {
 					try {
+						arrivalTime = System.nanoTime();
 						sendRequest(key);
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -93,7 +97,7 @@ public class ClientHandler implements Runnable {
 		if(message.length() > 0) {
 			message = message.substring(0, message.length()-1);
 			//message += "\r";
-			Job job = new Job(message, key);
+			Job job = new Job(message, key, arrivalTime, System.nanoTime());
 			queue.add(job);
 		}
 		else {

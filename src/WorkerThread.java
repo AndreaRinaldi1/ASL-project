@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class WorkerThread implements Runnable{
 	private ArrayList<ServerHandler> servers = new ArrayList<>();
@@ -21,11 +26,18 @@ public class WorkerThread implements Runnable{
 	Job currentJob;
 	ArrayList<String> replies = new ArrayList<>();
 	Iterator<String> values;
-	ArrayList<String> unproperRequests = new ArrayList<>();
 	String requestType;
 	int numOfRecipients;
 	ArrayList<Socket> sockets;
 	String[][] parts;
+	int numOfRequests = 0;
+	public static ArrayList<String> unproperRequests = new ArrayList<>();
+	public static int numOfMisses = 0;
+	
+	public static final Logger THROUGHPUT = LogManager.getLogger("Throughput");
+	public static final Logger TIMEINQUEUE = LogManager.getLogger("TimeInQueue");
+	public static final Logger RESPONSETIME = LogManager.getLogger("ResponseTime");
+	
 	
 	public WorkerThread(int number, String[][] parts, Queue<Job> queue) {
 		this.parts = parts;
@@ -46,16 +58,28 @@ public class WorkerThread implements Runnable{
 
 	@Override
 	public void run() {
-		int count = 0;
-		
-		while(true){
-			currentJob = null;
+		currentJob = null;
+		currentJob = queue.poll();
+		while(currentJob == null) {
 			currentJob = queue.poll();
+		}
+		long currentTime = System.nanoTime();
+
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			public void run() {
+				THROUGHPUT.info(myNumber + " " + numOfRequests);
+			}
+		}, 0, 10);
+		
+		do{
 			if(currentJob != null) {
+				TIMEINQUEUE.info(currentTime - currentJob.queueEntranceTime);
+
 				this.input = currentJob.getInputObject();
-				count++;
+				numOfRequests++;
 				System.out.println("WorkerThread " + myNumber + " input " + input);
-	
+				
 				requestType = this.input.substring(0, 3);
 				
 				switch(requestType) {
@@ -66,15 +90,17 @@ public class WorkerThread implements Runnable{
 					sendSetRequest();
 					break;
 				default:
-					unproperRequests.add(input);
+					WorkerThread.unproperRequests.add(input);
 					break;
 				}
-					
 			}
-		}
+			currentJob = queue.poll();
+			currentTime = System.nanoTime();
+		}while(true);
 	}
 	
 	private void sendSetRequest() {
+		MyMiddleware.numOfSets++;
 		numOfRecipients = servers.size();
 		for(ServerHandler s : servers) {
 			s.send(this, input);
@@ -124,8 +150,15 @@ public class WorkerThread implements Runnable{
 		if(requests.length <= 1 || !(MyMiddleware.readSharded)){
 			numOfRecipients = 1;
 			ServerHandler recipient = servers.get(MyMiddleware.loadBalance());
-
+			
 			recipient.send(this, input);
+			
+			if(requests.length <= 1) {
+				MyMiddleware.numOfGets++;
+			}
+			else {
+				MyMiddleware.numOfMultiGets++;
+			}
 			
 			/*while(replies.size() < numOfRecipients) {
 				synchronized(this) {	
@@ -151,6 +184,8 @@ public class WorkerThread implements Runnable{
 			replies.clear();
 		}
 		else {
+			MyMiddleware.numOfMultiGets++;
+
 			numOfRecipients = servers.size();
 			int requestsPerServer = requests.length / servers.size();
 			int remainingRequests = requests.length % servers.size() ;
@@ -232,8 +267,9 @@ public class WorkerThread implements Runnable{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		
+		RESPONSETIME.info(System.nanoTime() - currentJob.timeOfArrival);
 		}
+		
 		//CharBuffer buffer = CharBuffer.wrap(message);
 		/*while (buffer.hasRemaining()) {
 			try {
