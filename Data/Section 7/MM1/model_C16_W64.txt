@@ -1,0 +1,9 @@
+lambda = 1/meanInterarrivalTime: 7393.11392585
+lambda = total number of requests over the 80 seconds test: 7392.3
+mu = maximum throughput for this configuration of worker threads: 9756.02083333
+ro = lambda/mu: 0.757800137182
+average number of jobs in the queue by instrumentation of the MW: 15.952544764
+avg number of jobs in queue as lambda * meanWaitingTime: 16.5844248717
+avg number of jobs in service as lambda * meanServiceTime: 44.4646771516
+avg number of jobs in the system as lambda *meanTimeInSystem: 61.2660120784
+avg number of jobs in the system as lambda * meanWaitingTime + lambda * meanServiceTime: 61.0491020233

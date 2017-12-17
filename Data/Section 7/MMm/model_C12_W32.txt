@@ -1,0 +1,5 @@
+lambda = 1/meanInterarrivalTime: 6843.43637635
+mu = maximum service rate for this configuration of worker threads: 16749.9081978
+ro = lambda/mu: 0.408565604989
+avg number of jobs in queue as (ro*erlangC)/(1-ro): 2.11002233377e-10
+avg number of jobs in the service as workers*ro: 26.1481987193

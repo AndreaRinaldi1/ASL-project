@@ -1,0 +1,44 @@
+Clients: 1	Threads: 2
+Throughput: 4017.87 4038.48 4097.72
+Latency: 0.492 0.49 0.483
+
+Clients: 4	Threads: 2
+Throughput: 7196.42 8032.4 7423.72
+Latency: 1.108 0.992 1.074
+
+Clients: 8	Threads: 2
+Throughput: 9395.73 9205.09 8908.87
+Latency: 1.679 1.735 1.771
+
+Clients: 12	Threads: 2
+Throughput: 11230.52 11115.33 10690.15
+Latency: 2.134 2.156 2.214
+
+Clients: 16	Threads: 2
+Throughput: 12039.82 12668.13 11971.33
+Latency: 2.622 2.555 2.704
+
+Clients: 20	Threads: 2
+Throughput: 12393.61 13116.68 12279.25
+Latency: 3.185 3.047 3.255
+
+Clients: 24	Threads: 2
+Throughput: 13460.23 13189.27 12868.94
+Latency: 3.563 3.592 3.727
+
+Clients: 28	Threads: 2
+Throughput: 14130.21 13690.04 13524.99
+Latency: 4.011 4.088 4.138
+
+Clients: 32	Threads: 2
+Throughput: 14532.38 13894.78 13919.88
+Latency: 4.401 4.603 4.595
+
+Clients: 40	Threads: 2
+Throughput: 14689.14 13314.32 13804.08
+Latency: 5.443 6.006 5.793
+
+Clients: 50	Threads: 2
+Throughput: 13339.15 12253.92 12857.48
+Latency: 7.494 8.158 7.775
+

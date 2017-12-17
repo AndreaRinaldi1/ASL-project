@@ -1,0 +1,5 @@
+Servers: 3	Middleware: 1	Worker Threads: 32
+Throuhgput: 9347.01 9533.32 9369.42
+Average Throughput: 9416.58333333
+Response Time: 20.5336666667 20.1326666667 20.4843333333
+Average Response Time: 20.3835555556
