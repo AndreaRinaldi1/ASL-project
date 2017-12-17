@@ -14,7 +14,14 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-
+/**
+ * This class implements the Net Thread, that is where the clients send their requests to. This singleton instance
+ * makes use of non-blocking I/O for the incoming requests from the clients, so that, when one client is ready to 
+ * write, the message is read from the channel into the buffer and a new Job is created. Lastly, the net thread
+ * puts this new job into the queue, and goes on handling the next incoming request from the clients.
+ * @author andrea
+ *
+ */
 public class ClientHandler implements Runnable {
 	Scanner input = null;
 	LinkedBlockingQueue<Job> queue;
@@ -73,7 +80,12 @@ public class ClientHandler implements Runnable {
 			}
 		}
 	}
-						
+	
+	/**
+	 * In this function the net thread reads the incoming request from the buffer, builds a new Job with
+	 * that message body in it and the other time variables, and puts it in the queue.
+	 * @param key the client that submitted the request
+	 */
 	public void sendRequest(SelectionKey key) throws IOException{
 		socketChannel = (SocketChannel) key.channel(); 
 		message = "";

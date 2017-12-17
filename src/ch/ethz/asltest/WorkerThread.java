@@ -14,7 +14,15 @@ import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-
+/**
+ * @author arinaldi
+ * This class implements the worker thread, that takes a single request out of the queue, parse it and process it
+ * following different path according to its type. In case of a Set request, it is replicated to all the servers 
+ * and then all the responses are fetched. If the request is a Get, it is simply forwarded to one of the servers
+ * while if it is a multi-get we distinguish two cases. If sharding is enabled, the message is splitted in smaller 
+ * requests and these forwarded to the servers accordingly, while if it is not enabled, all the gets are sent to 
+ * one single server. Lastly, when the responses have been collected, the worker thread sends the reply to the client.
+ */
 public class WorkerThread implements Runnable{
 	public ArrayList<ServerHandler> servers = new ArrayList<>();
 	private String input;
@@ -61,6 +69,11 @@ public class WorkerThread implements Runnable{
 	long pollTime;
 	public ArrayList<String> myThroughput = new ArrayList<>();
 	
+	/**
+	 * @param number the ID of the worker thread
+	 * @param parts the address and ports of the servers
+	 * @param queue the network queue from where to take the requests
+	 */
 	public WorkerThread(int number, String[][] parts, LinkedBlockingQueue<Job> queue) {
 		this.parts = parts;
 		this.queue = queue;
@@ -121,6 +134,10 @@ public class WorkerThread implements Runnable{
 		}
 	}
 	
+	/**
+	 * If the request is a Set it is forwarded to all the servers and
+	 * finally the response sent back to the client
+	 */
 	private void sendSetRequest() {
 		numOfSets++;
 		type = "0";
@@ -153,6 +170,12 @@ public class WorkerThread implements Runnable{
 		
 	}
 
+	
+	/**
+	 * In case of a get request or multi-get with no sharding, the message is sent only to one server
+	 * while in case of multi-get with sharding the request is split into multiple parts and forwarded 
+	 * to the servers. Lastly, the response is sent back to the client.
+	 */
 	public void sendGetRequest() {
 		String[] requests = this.input.substring(4, this.input.length()).split(" "); 
 		
@@ -198,6 +221,9 @@ public class WorkerThread implements Runnable{
 			numOfRecipients = servers.size();
 			requestsPerServer = requests.length / servers.size();
 			remainingRequests = requests.length % servers.size() ;
+			
+			//The worker thread sends a number of requests to each server equal to requestsPerServer 
+			//and at most requestsPerServer + remainingRequests
 			
 			for(int i = 0; i < servers.size(); i++) {
 				message = requestType;
@@ -247,6 +273,11 @@ public class WorkerThread implements Runnable{
 		
 	}
 	
+	/**
+	 * This is where the message is sent back to the client that made that request
+	 * @param key the client Selection Key
+	 * @param message the response message
+	 */
 	public void sendBack(SelectionKey key, String message) {
 		socketChannel = (SocketChannel) key.channel(); 
 		message += "\r\n";
@@ -268,6 +299,11 @@ public class WorkerThread implements Runnable{
 		myNumOfRequests++;
 	}
 	
+	
+	/**
+	 * This is the function that is used to balance the load to the servers in case of a get or multi-get without sharding
+	 * @return the index of the server to which the worker threads have to send the message
+	 */
 	public int loadBalance() {
 		serverCount++;
 		serverCount = (serverCount) % (servers.size());

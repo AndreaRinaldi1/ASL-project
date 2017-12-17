@@ -22,7 +22,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
+/**
+ * This is the class in which the worker threads and the net threads are initialized and started. 
+ * This is also where the clients connect to the Selector at the beginning of the experiment.
+ * @author arinaldi
+ */
 public class MyMiddleware implements Runnable{
 
 	static String myIp;
@@ -81,7 +85,6 @@ public class MyMiddleware implements Runnable{
 			System.err.println("Cannot start the middleware input socket");
 		}
 		
-		//System.out.println("MyMidldleware - I instanciated inputSocket. Address: " + myIp + " Port: " + myPort);
 		
 		/*
 		 * Here I initialize the servers and put them in a List
@@ -94,7 +97,7 @@ public class MyMiddleware implements Runnable{
 		
 		
 		/*
-		 * Here I initialize the worker threads and put them in a Fixed Thread Pool
+		 * Here I initialize the worker threads and put them in a Fixed Thread Pool and start them
 		 */
         workerThreadsExe = Executors.newFixedThreadPool(numThreadsPTP);
         for(int i = 0; i < numThreadsPTP; i++){
@@ -116,7 +119,7 @@ public class MyMiddleware implements Runnable{
 				WorkerThread.numOfRequests.set(0);
 				
 				try {
-					Thread.sleep(4000); // colleziono dati per tot secondi (finestra)
+					Thread.sleep(4000); // I collect data for 4 seconds window
 				} catch (InterruptedException e) {}
 				
 				throughput.add(WorkerThread.numOfRequests.floatValue() / 4);
@@ -127,14 +130,14 @@ public class MyMiddleware implements Runnable{
 					wt.myThroughput.add((wt.myNumOfRequests * 1000000000 / (System.nanoTime() - wt.resetTime))+"");
 				}
 			}
-		}, 8000 , 6400); //prima di ricollezionare dei dati aspetto tot
+		}, 8000 , 6400); //before collecting data again I wait for the delay
 				
 
 		
-        //System.out.println("MyMiddleware - WorkerThread done");
 		
         /*
-		 * This is the initialization of the middleware portion that interfaces with the clients
+		 * This is the initialization of the middleware part that interfaces with the clients 
+		 * (Selector and ClientHandler instantiations)
 		 */
         try {
 			selector = Selector.open();
@@ -166,8 +169,10 @@ public class MyMiddleware implements Runnable{
 			}
 		}, 0, 50);
 		
-		
-		
+		/*
+		 * In the ShutdownHook I collect the data stored in the variables of the worker threads, 
+		 * the ClientHandler and the ServersHandlers and lastly I write the information to files
+		 */
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 		    public void run() {
 				try {

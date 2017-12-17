@@ -6,7 +6,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 
-
+/**
+ * @author arinaldi
+ * This class provide the communication interface between the worker thread and the server
+ */
 public class ServerHandler {
 	private Socket socket;
 	private PrintWriter output;
@@ -29,13 +32,21 @@ public class ServerHandler {
 		return socket;
 	}
 
+	/**
+	 * Through this function the worker thread forwards the message to the server
+	 * @param wt the worker thread sending the request
+	 * @param message the request itself
+	 */
 	public void send(WorkerThread wt, String message){
 		load += 1;
 		output.println(message);
 		output.flush();
 	}
 	
-			
+	/**
+	 * In this function the worker thread retrieves the response from the server		
+	 * @return the response of the server
+	 */
 	public String receive() {		
 		try {
 			serverReply = input.readLine();
