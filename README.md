@@ -6,7 +6,7 @@ Furthermore, the system will be modeled in different ways (M/M/1, M/M/m and Queu
 
 ## Overview
 
-The root directory contains the source code, the final Report and the aggregated information of the data collected from the experiments on the Cloud. It is also included the original outputs of the memtier clients for every experiment, but the data gathered from the instrumentation of the middleware is omitted due to data volume submission conststraints. Consequently, for the data related to the middleware, just those needed to create the plots, graphs and tables in the report are uploaded. In case of clarifications, I still have the original raw data though.
+The root directory contains the source code, the final Report, the scripts used to run the experiments, the scripts used to process data and create plots and, lastly, the aggregated information of the data collected from the experiments on the Cloud. It is also included the original outputs of the memtier clients for every experiment, but the data gathered from the instrumentation of the middleware is omitted due to data volume submission conststraints. Consequently, for the data related to the middleware, just those needed to create the plots, graphs and tables in the report are uploaded. In case of clarifications, I still have the original raw data though.
 
 ## The Source Code
 
